@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+python-multipart
+torch
+transformers
+scikit-learn
+numpy
+pandas
+chromadb
+pydantic-settings
+python-dotenv
+requests

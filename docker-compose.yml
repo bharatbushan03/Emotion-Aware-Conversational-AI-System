@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: emotion_ai_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - chroma_data:/app/chroma_db_storage
+    environment:
+      - EMOTION_MODEL_NAME=bhadresh-savani/bert-base-go-emotion
+    networks:
+      - ai_network
+
+  frontend:
+    build: ./frontend
+    container_name: emotion_ai_frontend
+    ports:
+      - "5173:80" # Mapping container port 80 (nginx) to host 5173 to match dev experience
+    depends_on:
+      - backend
+    networks:
+      - ai_network
+
+volumes:
+  chroma_data:
+
+
+networks:
+  ai_network:
+    driver: bridge
