@@ -31,5 +31,5 @@ COPY . .
 EXPOSE 8000
 
 # Command to run the application
-# Note: We use "app.main:app" because we will mount/run from the backend root
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Use shell form to allow variable expansion for $PORT (Railway requirement)
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
