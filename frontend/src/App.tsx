@@ -6,6 +6,7 @@ function App() {
   const [input, setInput] = useState('')
   const [emotion, setEmotion] = useState<string>('Waiting...')
   const [confidence, setConfidence] = useState<number | null>(null)
+  const [explanation, setExplanation] = useState<any>(null)
 
   const sendMessage = async () => {
     if (!input.trim()) return
@@ -16,8 +17,9 @@ function App() {
     setInput('')
 
     // API call
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(`${apiUrl}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -30,6 +32,7 @@ function App() {
       setMessages(prev => [...prev, { role: 'ai', content: data.response }])
       setEmotion(data.emotion)
       setConfidence(data.confidence)
+      setExplanation(data.explanation)
     } catch (error) {
       console.error("Error:", error)
       setMessages(prev => [...prev, { role: 'ai', content: "Error connecting to server." }])
@@ -70,8 +73,36 @@ function App() {
           </div>
           <div className="metric">
             <label>Confidence:</label>
-            <span>{confidence !== null ? (confidence * 100).toFixed(1) + '%' : '-'}</span>
+            <span className={confidence && confidence > 0.8 ? 'high-conf' : 'low-conf'}>
+              {confidence !== null ? (confidence * 100).toFixed(1) + '%' : '-'}
+            </span>
           </div>
+
+          {explanation && (
+            <div className="explanation-section">
+              <h3>🧠 Explainability</h3>
+
+              <div className="exp-item">
+                <label>Reasoning Trace:</label>
+                <p>{explanation.reasoning || "Analyzing..."}</p>
+              </div>
+
+              {explanation.is_sarcastic && (
+                <div className="exp-item sarcasm-alert">
+                  ⚠️ Sarcasm Detected
+                </div>
+              )}
+
+              <div className="exp-item">
+                <label>Key Tokens:</label>
+                <div className="tags">
+                  {explanation.key_tokens && explanation.key_tokens.map((token: string, i: number) => (
+                    <span key={i} className="token-tag">{token}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </aside>
       </main>
     </div>

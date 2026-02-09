@@ -136,3 +136,71 @@
   font-weight: bold;
   color: #2c3e50;
 }
+
+/* Explainability Dashboard Styles */
+.explanation-section {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 2px dashed #ddd;
+}
+
+.explanation-section h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.exp-item {
+  margin-bottom: 1rem;
+}
+
+.exp-item label {
+  display: block;
+  font-weight: 600;
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.exp-item p {
+  background: white;
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #444;
+}
+
+.sarcasm-alert {
+  background-color: #ffeaa7;
+  color: #d35400;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  border: 1px solid #fdcb6e;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.token-tag {
+  background-color: #e1f5fe;
+  color: #0288d1;
+  padding: 0.3rem 0.6rem;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.high-conf {
+  color: #00b894;
+}
+
+.low-conf {
+  color: #fab1a0;
+}
