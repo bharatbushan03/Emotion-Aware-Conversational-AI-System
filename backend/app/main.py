@@ -23,3 +23,7 @@ app.include_router(endpoints.router, prefix="/api")
 @app.get("/")
 async def root():
     return {"message": "Emotion-Aware AI Backend is running"}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "version": "1.0.0"}
