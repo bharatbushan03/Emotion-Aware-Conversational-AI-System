@@ -22,8 +22,8 @@ This is a production-grade **Emotion-Aware Conversational AI System** capable of
 ## 🚀 Quick Start (Local)
 
 ### Prerequisites
--   Python 3.10+
--   Node.js 18+
+-   Python 3.12
+-   Node.js 20+
 
 ### 1. Backend (FastAPI)
 ```bash

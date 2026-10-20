@@ -1,6 +1,6 @@
-# Use an official Python runtime as a parent image
-# Using 3.10-slim for compatibility (3.14 is too new for many ML libs in Docker)
-FROM python:3.10-slim
+# Python 3.12 matches the Render runtime. 3.10 cannot install the pinned
+# scientific stack, and 3.14 is too new for ChromaDB.
+FROM python:3.12-slim
 
 # Set the working directory in the container
 WORKDIR /app
