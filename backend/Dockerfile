@@ -17,12 +17,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements file
 COPY requirements.txt .
 
-# Install Python dependencies
-# Note: We might need to adjust requirements.txt for Linux compatibility if there are win-specific libs
+# requirements.txt pins the CPU torch wheel and Transformers 4.x.
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Install uvicorn explicitly if not in requirements
-RUN pip install uvicorn
 
 # Copy the backend code
 COPY . .

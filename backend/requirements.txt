@@ -1,12 +1,14 @@
-fastapi
-uvicorn
-python-multipart
-torch
-transformers
-scikit-learn
-numpy
-pandas
-chromadb
-pydantic-settings
-python-dotenv
-requests
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+fastapi==0.149.0
+uvicorn==0.54.0
+python-multipart==0.0.32
+torch==2.14.1+cpu
+transformers==4.57.6
+scikit-learn==1.9.1
+numpy==2.5.4
+pandas==3.0.6
+chromadb==1.5.9
+pydantic-settings==2.16.0
+python-dotenv==1.2.4
+requests==2.34.2

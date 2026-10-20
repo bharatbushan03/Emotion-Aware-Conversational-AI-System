@@ -51,6 +51,36 @@ npm run dev
 ```
 *Port: `5173`*
 
+## ☁️ Deploy
+
+Deploy the API on Render first, then the frontend on Vercel. The emotion, sarcasm, and Flan-T5 models need about 4 GB of RAM. `render.yaml` selects a 2 CPU / 4 GB instance and a 5 GB disk. Render's free 512 MB plan cannot load them.
+
+### Render (backend)
+
+1. In the Render dashboard, choose **New** → **Blueprint** and select this repository.
+2. Render reads `render.yaml` and creates `emotion-ai-api`.
+3. When prompted for `ALLOWED_ORIGINS`, use `http://localhost:5173` until the Vercel URL exists, then set it to that origin (for example `https://emotion-ai.vercel.app`).
+4. `GET /health` returns `models_ready: true` after the weights finish downloading. The first chat can take several minutes.
+
+| Setting | Value |
+| --- | --- |
+| Root directory | `backend` |
+| Build command | `bash render_build.sh` |
+| Start command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| Health check path | `/health` |
+| `PYTHON_VERSION` | `3.12.11` |
+| `HF_HOME` | `/var/data/huggingface` |
+| `CHROMA_DB_PATH` | `/var/data/chroma` |
+| `ALLOWED_ORIGINS` | `https://<your-app>.vercel.app` |
+
+Python is pinned to 3.12.11 because Render's default 3.14 runtime does not run this ChromaDB stack. Preview URLs on `https://*.vercel.app` are already allowed.
+
+### Vercel (frontend)
+
+1. Import this repository and set the root directory to `frontend`. Framework preset: Vite.
+2. Before the first production build, set `VITE_API_URL` to the Render origin, such as `https://emotion-ai-api.onrender.com`. No `/api` suffix. Vite inlines this value at build time.
+3. Deploy. `frontend/vercel.json` rewrites unknown paths to `index.html`.
+
 ## 🐳 Docker Deployment
 Run the entire system with a single command:
 
@@ -59,7 +89,6 @@ docker-compose up --build -d
 ```
 Access the app at `http://localhost:5173`.
 
-## 📚 Documentation
--   [Implementation Plan](implementation_plan.md)
--   [Deployment Guide](deployment_guide.md)
--   [API Docs](http://localhost:8000/docs)
+## 📚 API Docs
+
+Interactive API docs are at `http://localhost:8000/docs` when the backend is running.

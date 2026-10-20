@@ -5,6 +5,9 @@ from app.main import app
 
 
 class DummyEmotionService:
+    def ensure_ready(self):
+        return None
+
     def detect_emotion(self, text: str):
         return {
             "top_emotion": "joy",
@@ -56,3 +59,22 @@ def test_chat_endpoint_monkeypatched():
     assert body["confidence"] >= 0.9
     assert "explanation" in body
     assert body["explanation"]["tone"] == "Energetic + positive"
+
+
+def test_health_is_available_before_models_finish_loading():
+    client = TestClient(app)
+    response = client.get("/health")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "healthy"
+    assert "models_ready" in body
+
+
+def test_cors_allows_vercel_and_local_frontend():
+    client = TestClient(app)
+
+    vercel = client.get("/health", headers={"Origin": "https://emotion-ai.vercel.app"})
+    assert vercel.headers["access-control-allow-origin"] == "https://emotion-ai.vercel.app"
+
+    local = client.get("/health", headers={"Origin": "http://localhost:5173"})
+    assert local.headers["access-control-allow-origin"] == "http://localhost:5173"
