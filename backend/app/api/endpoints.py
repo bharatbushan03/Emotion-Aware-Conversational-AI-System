@@ -1,5 +1,9 @@
-from fastapi import APIRouter
+import logging
+
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -20,6 +24,15 @@ from app.services.explainability import explainability_service
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
+    try:
+        emotion_service.ensure_ready()
+    except Exception as exc:
+        logger.exception("Emotion model unavailable")
+        raise HTTPException(
+            status_code=503,
+            detail="Emotion models are not ready yet. Try again in a minute.",
+        ) from exc
+
     # 1. Detect emotion
     emotion_result = emotion_service.detect_emotion(request.message)
     top_emotion = emotion_result['top_emotion']

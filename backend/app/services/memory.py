@@ -1,7 +1,10 @@
+import os
 import uuid
 from datetime import datetime
 import logging
 from typing import List, Dict, Any, Optional
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +24,8 @@ class MemoryService:
 
         if CHROMA_AVAILABLE:
             try:
-                # Persistent client in valid directory
-                self.client = chromadb.PersistentClient(path="./chroma_db_storage")
+                os.makedirs(settings.CHROMA_DB_PATH, exist_ok=True)
+                self.client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
                 self.collection = self.client.get_or_create_collection(name="emotional_context")
                 logger.info("Memory service initialized with ChromaDB.")
             except Exception as e:

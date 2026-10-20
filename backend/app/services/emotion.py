@@ -1,54 +1,69 @@
-from transformers import pipeline
-from app.core.config import settings
 import logging
+import threading
+
+from transformers import pipeline
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
 
 class EmotionService:
     def __init__(self):
         self.classifier = None
-        self.load_model()
+        self.sarcasm_classifier = None
+        self._lock = threading.Lock()
+
+    @property
+    def is_ready(self) -> bool:
+        return self.classifier is not None and self.sarcasm_classifier is not None
 
     def load_model(self):
-        try:
-            logger.info(f"Loading emotion model: {settings.EMOTION_MODEL_NAME}")
-            self.classifier = pipeline(
+        if self.is_ready:
+            return
+        with self._lock:
+            if self.is_ready:
+                return
+            logger.info("Loading emotion model: %s", settings.EMOTION_MODEL_NAME)
+            emotion_classifier = pipeline(
                 "text-classification",
                 model=settings.EMOTION_MODEL_NAME,
-                return_all_scores=True
+                top_k=None,
             )
-            # Sarcasm detection
-            self.sarcasm_classifier = pipeline(
+            sarcasm_classifier = pipeline(
                 "text-classification",
-                model="helinivan/english-sarcasm-detector",
-                return_all_scores=True
+                model=settings.SARCASM_MODEL_NAME,
+                top_k=None,
             )
-            logger.info("Emotion and Sarcasm models loaded successfully.")
-        except Exception as e:
-            logger.error(f"Failed to load models: {e}")
-            raise e
+            self.classifier = emotion_classifier
+            self.sarcasm_classifier = sarcasm_classifier
+            logger.info("Emotion and sarcasm models loaded.")
+
+    def ensure_ready(self):
+        self.load_model()
 
     def detect_emotion(self, text: str):
-        if not self.classifier:
-            self.load_model()
-        
-        # Emotion detection
+        self.ensure_ready()
+
         results = self.classifier(text)
         emotions = results[0]
-        sorted_emotions = sorted(emotions, key=lambda x: x['score'], reverse=True)
+        sorted_emotions = sorted(emotions, key=lambda item: item["score"], reverse=True)
         top_emotion = sorted_emotions[0]
-        
-        # Sarcasm detection
-        sarcasm_results = self.sarcasm_classifier(text) # [{'label': 'SARCASM', 'score': 0.9}, ...]
-        sarcasm_score = next((r['score'] for r in sarcasm_results[0] if r['label'] == 'SARCASM'), 0.0)
+
+        sarcasm_results = self.sarcasm_classifier(text)
+        sarcasm_score = next(
+            (item["score"] for item in sarcasm_results[0] if item["label"] == "SARCASM"),
+            0.0,
+        )
         is_sarcastic = sarcasm_score > 0.5
 
         return {
-            "top_emotion": top_emotion['label'],
-            "confidence": top_emotion['score'],
-            "all_scores": {e['label']: e['score'] for e in emotions},
+            "top_emotion": top_emotion["label"],
+            "confidence": top_emotion["score"],
+            "all_scores": {item["label"]: item["score"] for item in emotions},
             "is_sarcastic": is_sarcastic,
-            "sarcasm_confidence": sarcasm_score
+            "sarcasm_confidence": sarcasm_score,
         }
+
 
 emotion_service = EmotionService()

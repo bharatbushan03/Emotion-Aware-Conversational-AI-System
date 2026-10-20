@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { KeyboardEvent } from 'react'
+import { apiOrigin } from './api'
 import './App.css'
 
 type ChatMessage = {
@@ -40,7 +41,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+  const apiUrl = apiOrigin()
 
   const submitMessage = async (messageText: string) => {
     const trimmed = messageText.trim()
@@ -62,7 +63,16 @@ function App() {
       })
 
       if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`)
+        let detail = `Request failed with status ${response.status}`
+        try {
+          const body = await response.json()
+          if (body && typeof body.detail === 'string' && body.detail) {
+            detail = body.detail
+          }
+        } catch {
+          // Keep the status text when the body is not JSON.
+        }
+        throw new Error(detail)
       }
 
       const data: ChatApiResponse = await response.json()

@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: emotion-ai-api
+    runtime: python
+    # The emotion, sarcasm, and Flan-T5 models do not fit in Render's 512 MB plans.
+    plan: 2c-4g
+    rootDir: backend
+    buildCommand: bash render_build.sh
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    buildFilter:
+      paths:
+        - backend/**
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.11
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: CHROMA_DB_PATH
+        value: /var/data/chroma
+      - key: HF_HOME
+        value: /var/data/huggingface
+    disk:
+      name: emotion-data
+      mountPath: /var/data
+      sizeGB: 5

@@ -51,6 +51,10 @@ npm run dev
 ```
 *Port: `5173`*
 
+## ☁️ Deploy
+
+The frontend deploys to Vercel and the API deploys to Render. Steps, environment variables, and the instance size the models need are in the [deployment guide](deployment_guide.md).
+
 ## 🐳 Docker Deployment
 Run the entire system with a single command:
 
